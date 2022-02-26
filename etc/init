@@ -1,0 +1,51 @@
+#!/sbin/sh
+
+export PATH=/sbin:/bin:/usr/bin:/usr/sbin
+
+# Install symlinks for all of the supported busybox utilities
+/sbin/busybox --install -s
+
+# Create folders if they don't exist
+mkdir -p /bin
+mkdir -p /dev -m 0755
+mkdir -p /mnt
+mkdir -p /proc
+mkdir -p /root -m 0700
+mkdir -p /sys
+mkdir -p /tmp
+mkdir -p /var
+mkdir -p /var/lock
+
+mount -t proc none /proc -onodev,noexec,nosuid
+mount -t sysfs none /sys -onodev,noexec,nosuid
+
+mknod /dev/console c 5 1
+mknod /dev/null c 1 3
+mknod /dev/ptmx c 5 2
+mknod /dev/tty c 5 0
+mknod /dev/tty0 c 4 0
+mknod /dev/tty1 c 4 1
+mknod /dev/zero c 1 5
+
+# initial population and dynamic updates
+echo "/sbin/mdev" > /proc/sys/kernel/hotplug
+/sbin/mdev -s
+
+#
+# User defined setup
+#
+
+# mount efiesp and save dmesg
+mkdir /mnt/efiesp
+mount -t vfat /dev/mmcblk0p25 /mnt/efiesp
+dmesg > /efiesp/dmesg.log
+ls -l /dev > /efiesp/dev.lst
+
+# libaroma
+/usr/bin/libaroma /usr/bin/res.zip>/efiesp/aroma.log
+
+# unmount efiesp when libaroma exited
+umount /efiesp
+
+# Start the shell
+exec /sbin/sh

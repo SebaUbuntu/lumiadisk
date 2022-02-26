@@ -2,12 +2,9 @@
 
 set -e
 
-PWD="$(pwd)"
-FILE="${PWD}/initramfs.img"
-FILE_CPIO_GZ="${PWD}/initramfs.cpio.gz"
-FILE_CPIO="${PWD}/initramfs.cpio"
-RAMDISK_DIR="${PWD}/ramdisk"
-CPIO="${PWD}/cpio"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+
+source "${SCRIPT_DIR}/utils.sh"
 
 if [ ! -d "${RAMDISK_DIR}" ]; then
     echo "Error: ${RAMDISK_DIR} does not exist"
